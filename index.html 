@@ -3,317 +3,258 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="manifest" href="manifest.json">
-    <title>Calculadora con Conversión de Moneda</title>
+    <title>Mini Chat con Gemini - Un solo archivo</title>
     <style>
-        /* Estilos generales para el cuerpo de la página */
+        * {
+            box-sizing: border-box;
+        }
         body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background-color: #f0f0f0;
-            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
             padding: 20px;
-            box-sizing: border-box;
+            background: #f0f2f5;
         }
-
-        /* Contenedor principal de la calculadora */
-        .calculadora-container {
-            background-color: #333;
-            border-radius: 10px;
+        #chat-container {
+            background: white;
+            border-radius: 16px;
             padding: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            width: 100%;
-            max-width: 400px;
-            box-sizing: border-box;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
-
-        /* Pantalla de visualización */
-        .display {
-            background-color: #444;
-            color: white;
-            padding: 15px;
-            text-align: right;
-            border-radius: 5px;
-            margin-bottom: 15px;
-            font-size: 2.5em;
-            word-break: break-all;
-            min-height: 50px;
-            box-sizing: border-box;
-        }
-
-        /* Contenedor de los botones */
-        .botones {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-        }
-
-        /* Estilos de los botones */
-        .boton {
-            background-color: #555;
-            color: white;
-            border: none;
-            padding: 20px;
-            font-size: 1.5em;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-            box-sizing: border-box;
-        }
-
-        .boton:hover {
-            background-color: #666;
-        }
-
-        .boton.operador {
-            background-color: #f1a33c;
-        }
-
-        .boton.operador:hover {
-            background-color: #ffb157;
-        }
-
-        .boton.limpiar {
-            background-color: #999;
-        }
-
-        .boton.limpiar:hover {
-            background-color: #aaa;
-        }
-        
-        /* Nuevas clases para los botones de diseño */
-        .boton.boton-largo {
-            grid-row: span 2;
-        }
-        
-        .boton.cero-largo {
-            grid-column: span 2;
-        }
-
-        .boton.igual {
-            grid-column: span 2;
-            background-color: #e04747;
-        }
-
-        .boton.igual:hover {
-            background-color: #ff5c5c;
-        }
-
-        /* Contenedor de la entrada del precio del dólar */
-        .dolar-input-container {
-            margin-bottom: 15px;
-        }
-
-        .dolar-input {
-            width: 100%;
-            padding: 10px;
-            font-size: 1em;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
-
-        /* Estilos para la sección de resultados */
-        .resultados {
-            color: white;
-            text-align: right;
-            margin-top: 15px;
-            font-size: 1.2em;
-        }
-
-        /* Estilos para el modal */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            visibility: hidden; /* Oculto por defecto */
-            opacity: 0;
-            transition: visibility 0s, opacity 0.3s ease;
-        }
-
-        .modal-overlay.visible {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        .modal-content {
-            background-color: #333;
-            color: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
-            text-align: center;
-            max-width: 350px;
-            width: 90%;
-            box-sizing: border-box;
-        }
-
-        .modal-content h3 {
+        h2 {
             margin-top: 0;
-            font-size: 1.5em;
+            color: #1a73e8;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-
-        .modal-input {
-            width: 100%;
+        #messages {
+            height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            border: 1px solid #e0e0e0;
             padding: 12px;
-            font-size: 1.1em;
-            border: 1px solid #555;
-            border-radius: 5px;
-            margin: 15px 0;
-            box-sizing: border-box;
-            background-color: #444;
-            color: white;
+            border-radius: 12px;
+            background: #fafafa;
         }
-
-        .modal-button {
-            background-color: #e04747;
+        .user-message {
+            text-align: right;
+            margin: 12px;
+            background: #1a73e8;
+            color: white;
+            padding: 10px 14px;
+            border-radius: 18px;
+            display: inline-block;
+            max-width: 80%;
+            float: right;
+            clear: both;
+        }
+        .bot-message {
+            text-align: left;
+            margin: 12px;
+            background: #e9ecef;
+            color: #202124;
+            padding: 10px 14px;
+            border-radius: 18px;
+            display: inline-block;
+            max-width: 80%;
+            float: left;
+            clear: both;
+        }
+        .input-area {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+        }
+        input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 24px;
+            font-size: 16px;
+            outline: none;
+            transition: 0.2s;
+        }
+        input:focus {
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 2px rgba(26,115,232,0.2);
+        }
+        button {
+            padding: 12px 20px;
+            background: #1a73e8;
             color: white;
             border: none;
-            padding: 12px 25px;
-            font-size: 1.1em;
-            border-radius: 5px;
+            border-radius: 24px;
             cursor: pointer;
-            transition: background-color 0.2s ease;
+            font-weight: bold;
+            transition: 0.2s;
         }
-
-        .modal-button:hover {
-            background-color: #ff5c5c;
+        button:hover {
+            background: #1557b0;
+        }
+        .loading {
+            font-style: italic;
+            color: #5f6368;
+        }
+        .clearfix::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+        #messages {
+            display: flex;
+            flex-direction: column;
+        }
+        .message-wrapper {
+            width: 100%;
+            margin: 6px 0;
         }
     </style>
 </head>
 <body>
-    <div class="calculadora-container">
-        <div class="dolar-input-container">
-            <input type="number" id="precio-dolar" class="dolar-input" placeholder="Precio del dólar (Ej: 158.92)" value="0" readonly>
-        </div>
+<div id="chat-container">
+    <h2> Mini Chat con Gemini (todo en 1 archivo)</h2>
+    <div id="messages"></div>
+    <div class="input-area">
+        <input type="text" id="userInput" placeholder="Escribe tu mensaje...">
+        <button id="sendBtn">Enviar</button>
+    </div>
+    <p style="font-size: 12px; color: #888; margin-top: 12px; text-align: center;">
+         Recuerda reemplazar 'TU_CLAVE_API' en el código por tu clave de Gemini.
+    </p>
+</div>
 
-        <div class="display" id="display">0</div>
-
-        <div class="botones">
-            <button class="boton limpiar" onclick="limpiar()">C</button>
-            <button class="boton" onclick="borrarUltimo()">DEL</button>
-            <button class="boton operador" onclick="agregarOperador('/')">/</button>
-            <button class="boton operador" onclick="agregarOperador('*')">*</button>
-            
-            <button class="boton" onclick="agregarNumero('7')">7</button>
-            <button class="boton" onclick="agregarNumero('8')">8</button>
-            <button class="boton" onclick="agregarNumero('9')">9</button>
-            <button class="boton operador" onclick="agregarOperador('-')">-</button>
-            
-            <button class="boton" onclick="agregarNumero('4')">4</button>
-            <button class="boton" onclick="agregarNumero('5')">5</button>
-            <button class="boton" onclick="agregarNumero('6')">6</button>
-            <button class="boton operador boton-largo" onclick="agregarOperador('+')">+</button>
-            
-            <button class="boton" onclick="agregarNumero('1')">1</button>
-            <button class="boton" onclick="agregarNumero('2')">2</button>
-            <button class="boton" onclick="agregarNumero('3')">3</button>
-
-            <button class="boton cero-largo" onclick="agregarNumero('0')">0</button>
-            <button class="boton" onclick="agregarNumero('.')">.</button>
-            <button class="boton igual" onclick="calcular()">=</button>
-        </div>
+<script>
+    // ========================
+    //  CONFIGURACIÓN OBLIGATORIA
+    // ========================
+    //  Pega tu API Key de Google AI Studio aquí:
+    const API_KEY = "AIzaSyBIcI56jw8oTqimfDOfll1p4364B4YCguU";   // <--- REEMPLAZA ESTO con tu clave real
+    
+    // URL de la API de Gemini (versión estable)
+    const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+    
+    // Elementos del DOM
+    const messagesDiv = document.getElementById('messages');
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+    
+    // Historial de conversación (para contexto)
+    let conversationHistory = [];
+    
+    // Función para mostrar un mensaje
+    function displayMessage(role, text) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'message-wrapper';
         
-        <div class="resultados">
-            <p id="resultado-bs">Total en Bs: 0</p>
-            <p id="resultado-usd">Total en USD: 0</p>
-        </div>
-    </div>
-
-    <div id="modal-overlay" class="modal-overlay">
-        <div class="modal-content">
-            <h3>Tasa de Cambio del Dólar</h3>
-            <p>Por favor, ingresa el precio actual del dólar.</p>
-            <input type="number" id="modal-precio-dolar" class="modal-input" placeholder="Ej: 158.92">
-            <button class="modal-button" onclick="guardarPrecioDolar()">Guardar</button>
-        </div>
-    </div>
-
-    <script>
-        const display = document.getElementById('display');
-        const resultadoBs = document.getElementById('resultado-bs');
-        const resultadoUsd = document.getElementById('resultado-usd');
-        const precioDolarInput = document.getElementById('precio-dolar');
-        const modalOverlay = document.getElementById('modal-overlay');
-        const modalPrecioDolarInput = document.getElementById('modal-precio-dolar');
-        let expresion = '';
-
-        function agregarNumero(valor) {
-            expresion += valor;
-            display.innerText = expresion;
-        }
-
-        function agregarOperador(operador) {
-            expresion += operador;
-            display.innerText = expresion;
-        }
-
-        function limpiar() {
-            expresion = '';
-            display.innerText = '0';
-            resultadoBs.innerText = 'Total en Bs: 0';
-            resultadoUsd.innerText = 'Total en USD: 0';
-        }
-
-        function borrarUltimo() {
-            expresion = expresion.slice(0, -1);
-            if (expresion === '') {
-                display.innerText = '0';
-            } else {
-                display.innerText = expresion;
-            }
-        }
-
-        function calcular() {
-            try {
-                const totalDolares = eval(expresion);
-                
-                display.innerText = totalDolares;
-                
-                const precioDolar = parseFloat(precioDolarInput.value);
-                if (isNaN(precioDolar) || precioDolar <= 0) {
-                    alert('Por favor, ingresa un precio válido para el dólar.');
-                    limpiar();
-                    return;
-                }
-                
-                const totalBolivares = totalDolares * precioDolar;
-                
-                resultadoBs.innerText = `Total en Bs: ${totalBolivares.toFixed(2)}`;
-                resultadoUsd.innerText = `Total en USD: ${totalDolares.toFixed(2)}`;
-                
-                expresion = totalDolares.toString();
-            } catch (error) {
-                display.innerText = 'Error';
-                expresion = '';
-            }
-        }
-
-        function guardarPrecioDolar() {
-            const precioDolar = parseFloat(modalPrecioDolarInput.value);
-            if (isNaN(precioDolar) || precioDolar <= 0) {
-                alert('Por favor, ingresa un precio válido y mayor a cero.');
-                return;
-            }
-            precioDolarInput.value = precioDolar.toFixed(2);
-            modalOverlay.classList.remove('visible');
-        }
-
-        // Muestra el modal cuando la página se carga
-        window.onload = function() {
-            modalOverlay.classList.add('visible');
-            modalPrecioDolarInput.focus();
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add(role === 'user' ? 'user-message' : 'bot-message');
+        messageDiv.textContent = text;
+        
+        wrapper.appendChild(messageDiv);
+        messagesDiv.appendChild(wrapper);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+    
+    // Mostrar indicador de "escribiendo..."
+    function showLoading() {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'message-wrapper';
+        wrapper.id = 'loading-wrapper';
+        const loadingDiv = document.createElement('div');
+        loadingDiv.classList.add('bot-message', 'loading');
+        loadingDiv.textContent = ' Escribiendo...';
+        wrapper.appendChild(loadingDiv);
+        messagesDiv.appendChild(wrapper);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+    
+    function removeLoading() {
+        const loadingWrapper = document.getElementById('loading-wrapper');
+        if (loadingWrapper) loadingWrapper.remove();
+    }
+    
+    // Llamada a la API de Gemini
+    async function getGeminiResponse(userMessage) {
+        // Agregar mensaje del usuario al historial
+        conversationHistory.push({
+            role: "user",
+            parts: [{ text: userMessage }]
+        });
+        
+        const requestBody = {
+            contents: conversationHistory
         };
-    </script>
+        
+        try {
+            const response = await fetch(`${API_URL}?key=${API_KEY}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestBody)
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error?.message || `Error HTTP ${response.status}`);
+            }
+            
+            const data = await response.json();
+            // Extraer respuesta del modelo
+            const botReply = data.candidates[0].content.parts[0].text;
+            
+            // Guardar respuesta en el historial
+            conversationHistory.push({
+                role: "model",
+                parts: [{ text: botReply }]
+            });
+            
+            return botReply;
+        } catch (error) {
+            console.error("Error llamando a Gemini:", error);
+            return ` Error: ${error.message}. Verifica tu API Key o conexión.`;
+        }
+    }
+    
+    // Evento al enviar mensaje
+    async function sendMessage() {
+        const messageText = userInput.value.trim();
+        if (messageText === "") return;
+        
+        // Mostrar mensaje del usuario
+        displayMessage('user', messageText);
+        userInput.value = '';
+        userInput.disabled = true;
+        sendBtn.disabled = true;
+        
+        // Mostrar "escribiendo..."
+        showLoading();
+        
+        // Obtener respuesta de Gemini
+        const botResponse = await getGeminiResponse(messageText);
+        
+        // Remover indicador y mostrar respuesta real
+        removeLoading();
+        displayMessage('bot', botResponse);
+        
+        userInput.disabled = false;
+        sendBtn.disabled = false;
+        userInput.focus();
+    }
+    
+    // Configurar eventos
+    sendBtn.addEventListener('click', sendMessage);
+    userInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendMessage();
+    });
+    
+    // Validación de API Key al cargar la página
+    if (API_KEY === "TU_CLAVE_API") {
+        displayMessage('bot', " **Atención**: Debes reemplazar 'TU_CLAVE_API' en el código con tu clave real de Gemini. Obtén una gratis en [Google AI Studio](https://aistudio.google.com) y luego recarga esta página.");
+    } else {
+        displayMessage('bot', "¡Hola! Soy Gemini. Escribe algo para empezar a chatear ");
+    }
+</script>
 </body>
 </html>
