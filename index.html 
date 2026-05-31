@@ -2,259 +2,764 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini Chat con Gemini - Un solo archivo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Mis Finanzas - Control de Ingresos y Gastos</title>
     <style>
         * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
         }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            max-width: 800px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
-            background: #f0f2f5;
         }
-        #chat-container {
+
+        /* Header */
+        .header {
             background: white;
-            border-radius: 16px;
+            border-radius: 20px;
             padding: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        h2 {
-            margin-top: 0;
-            color: #1a73e8;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        #messages {
-            height: 400px;
-            overflow-y: auto;
             margin-bottom: 20px;
-            border: 1px solid #e0e0e0;
-            padding: 12px;
-            border-radius: 12px;
-            background: #fafafa;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
         }
-        .user-message {
-            text-align: right;
-            margin: 12px;
-            background: #1a73e8;
-            color: white;
-            padding: 10px 14px;
-            border-radius: 18px;
-            display: inline-block;
-            max-width: 80%;
-            float: right;
-            clear: both;
+
+        .header h1 {
+            color: #333;
+            margin-bottom: 5px;
         }
-        .bot-message {
-            text-align: left;
-            margin: 12px;
-            background: #e9ecef;
-            color: #202124;
-            padding: 10px 14px;
-            border-radius: 18px;
-            display: inline-block;
-            max-width: 80%;
-            float: left;
-            clear: both;
+
+        .balance-total {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 10px 0;
+            color: #667eea;
         }
-        .input-area {
+
+        /* Navegación */
+        .nav-tabs {
             display: flex;
-            gap: 12px;
-            margin-top: 8px;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
         }
-        input {
+
+        .tab-btn {
             flex: 1;
             padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 24px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 12px;
+            color: white;
             font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: #667eea;
+        }
+
+        /* Tarjetas de período */
+        .period-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+        }
+
+        .card-title {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .card-income {
+            color: #10b981;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .card-expense {
+            color: #ef4444;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .card-balance {
+            color: #667eea;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        /* Formulario */
+        .form-section {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .form-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        input:focus, select:focus {
             outline: none;
-            transition: 0.2s;
+            border-color: #667eea;
         }
-        input:focus {
-            border-color: #1a73e8;
-            box-shadow: 0 0 0 2px rgba(26,115,232,0.2);
-        }
-        button {
-            padding: 12px 20px;
-            background: #1a73e8;
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 24px;
             cursor: pointer;
             font-weight: bold;
-            transition: 0.2s;
         }
-        button:hover {
-            background: #1557b0;
+
+        .btn-primary:hover {
+            opacity: 0.9;
         }
-        .loading {
-            font-style: italic;
-            color: #5f6368;
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+            border: none;
+            cursor: pointer;
         }
-        .clearfix::after {
-            content: "";
-            clear: both;
-            display: table;
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+            border: none;
+            cursor: pointer;
         }
-        #messages {
+
+        /* Filtros */
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* Lista de movimientos */
+        .movimientos-list {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .movimiento-item {
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #e5e7eb;
+            transition: background 0.2s;
         }
-        .message-wrapper {
-            width: 100%;
-            margin: 6px 0;
+
+        .movimiento-item:hover {
+            background: #f9fafb;
+        }
+
+        .movimiento-info {
+            flex: 1;
+        }
+
+        .movimiento-desc {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .movimiento-cat {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .movimiento-fecha {
+            font-size: 11px;
+            color: #999;
+            margin-top: 2px;
+        }
+
+        .movimiento-monto {
+            font-weight: bold;
+            font-size: 18px;
+            margin-right: 15px;
+        }
+
+        .ingreso {
+            color: #10b981;
+        }
+
+        .gasto {
+            color: #ef4444;
+        }
+
+        .delete-btn {
+            background: #fee2e2;
+            color: #ef4444;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .delete-btn:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        /* Gráfico simple */
+        .chart-container {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .chart-bars {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            margin-top: 20px;
+            overflow-x: auto;
+            min-height: 200px;
+        }
+
+        .bar-item {
+            flex: 1;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .bar {
+            background: linear-gradient(to top, #667eea, #764ba2);
+            height: 0px;
+            transition: height 0.3s;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 8px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        @media (max-width: 768px) {
+            .period-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .movimiento-item {
+                flex-wrap: wrap;
+            }
+            
+            .movimiento-monto {
+                margin-top: 8px;
+                margin-right: 0;
+            }
         }
     </style>
 </head>
 <body>
-<div id="chat-container">
-    <h2> Mini Chat con Gemini (todo en 1 archivo)</h2>
-    <div id="messages"></div>
-    <div class="input-area">
-        <input type="text" id="userInput" placeholder="Escribe tu mensaje...">
-        <button id="sendBtn">Enviar</button>
-    </div>
-    <p style="font-size: 12px; color: #888; margin-top: 12px; text-align: center;">
-         Recuerda reemplazar 'TU_CLAVE_API' en el código por tu clave de Gemini.
-    </p>
-</div>
+    <div class="container">
+        <div class="header">
+            <h1>💰 Mis Finanzas</h1>
+            <div class="balance-total" id="balanceTotal">0 Bs</div>
+        </div>
 
-<script>
-    // ========================
-    //  CONFIGURACIÓN OBLIGATORIA
-    // ========================
-    //  Pega tu API Key de Google AI Studio aquí:
-    const API_KEY = "AIzaSyBIcI56jw8oTqimfDOfll1p4364B4YCguU";   // <--- REEMPLAZA ESTO con tu clave real
-    
-    // URL de la API de Gemini (versión estable)
-    const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
-    
-    // Elementos del DOM
-    const messagesDiv = document.getElementById('messages');
-    const userInput = document.getElementById('userInput');
-    const sendBtn = document.getElementById('sendBtn');
-    
-    // Historial de conversación (para contexto)
-    let conversationHistory = [];
-    
-    // Función para mostrar un mensaje
-    function displayMessage(role, text) {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'message-wrapper';
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="showTab('dashboard')">📊 Dashboard</button>
+            <button class="tab-btn" onclick="showTab('movimientos')">📝 Movimientos</button>
+            <button class="tab-btn" onclick="showTab('reportes')">📈 Reportes</button>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="dashboardTab">
+            <div class="period-cards">
+                <div class="card">
+                    <div class="card-title">📅 Hoy</div>
+                    <div class="card-income" id="hoyIngreso">0 Bs</div>
+                    <div class="card-expense" id="hoyGasto">0 Bs</div>
+                    <div class="card-balance" id="hoyBalance">0 Bs</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">📆 Esta Semana</div>
+                    <div class="card-income" id="semanaIngreso">0 Bs</div>
+                    <div class="card-expense" id="semanaGasto">0 Bs</div>
+                    <div class="card-balance" id="semanaBalance">0 Bs</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">📅 Este Mes</div>
+                    <div class="card-income" id="mesIngreso">0 Bs</div>
+                    <div class="card-expense" id="mesGasto">0 Bs</div>
+                    <div class="card-balance" id="mesBalance">0 Bs</div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="form-title">➕ Agregar Movimiento</div>
+                <form id="movimientoForm">
+                    <div class="form-group">
+                        <label>Tipo</label>
+                        <select id="tipo" required>
+                            <option value="ingreso">💰 Ingreso</option>
+                            <option value="gasto">💸 Gasto</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Monto (Bs)</label>
+                        <input type="number" id="monto" step="0.01" required placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label>Descripción</label>
+                        <input type="text" id="descripcion" required placeholder="Ej: Sueldo, Comida...">
+                    </div>
+                    <div class="form-group">
+                        <label>Categoría</label>
+                        <select id="categoria" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha</label>
+                        <input type="date" id="fecha" required>
+                    </div>
+                    <button type="submit" class="btn-primary">✅ Guardar Movimiento</button>
+                </form>
+            </div>
+
+            <div class="movimientos-list">
+                <div class="form-title">📋 Últimos Movimientos</div>
+                <div id="ultimosMovimientos"></div>
+            </div>
+        </div>
+
+        <!-- Movimientos (lista completa) -->
+        <div id="movimientosTab" style="display:none;">
+            <div class="form-section">
+                <div class="form-title">🔍 Filtros</div>
+                <div class="filters">
+                    <input type="date" id="filtroFechaInicio" placeholder="Fecha inicio">
+                    <input type="date" id="filtroFechaFin" placeholder="Fecha fin">
+                    <select id="filtroTipo">
+                        <option value="">Todos</option>
+                        <option value="ingreso">Ingresos</option>
+                        <option value="gasto">Gastos</option>
+                    </select>
+                    <select id="filtroCategoria">
+                        <option value="">Todas</option>
+                    </select>
+                    <button class="btn-secondary" onclick="aplicarFiltros()">🔍 Filtrar</button>
+                    <button class="btn-secondary" onclick="limpiarFiltros()">🗑️ Limpiar</button>
+                </div>
+            </div>
+            <div class="movimientos-list">
+                <div id="todosMovimientos"></div>
+            </div>
+        </div>
+
+        <!-- Reportes -->
+        <div id="reportesTab" style="display:none;">
+            <div class="period-cards">
+                <div class="card">
+                    <div class="card-title">💰 Total Ingresos</div>
+                    <div class="card-income" id="reporteIngresos">0 Bs</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">💸 Total Gastos</div>
+                    <div class="card-expense" id="reporteGastos">0 Bs</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">⚖️ Balance Neto</div>
+                    <div class="card-balance" id="reporteBalance">0 Bs</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="form-title">📊 Evolución Semanal</div>
+                <div class="chart-bars" id="graficoBarras"></div>
+            </div>
+
+            <div class="chart-container">
+                <div class="form-title">📊 Evolución Mensual</div>
+                <div class="chart-bars" id="graficoMensual"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== CONFIGURACIÓN INICIAL ====================
+        let movimientos = [];
         
-        const messageDiv = document.createElement('div');
-        messageDiv.classList.add(role === 'user' ? 'user-message' : 'bot-message');
-        messageDiv.textContent = text;
-        
-        wrapper.appendChild(messageDiv);
-        messagesDiv.appendChild(wrapper);
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    }
-    
-    // Mostrar indicador de "escribiendo..."
-    function showLoading() {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'message-wrapper';
-        wrapper.id = 'loading-wrapper';
-        const loadingDiv = document.createElement('div');
-        loadingDiv.classList.add('bot-message', 'loading');
-        loadingDiv.textContent = ' Escribiendo...';
-        wrapper.appendChild(loadingDiv);
-        messagesDiv.appendChild(wrapper);
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    }
-    
-    function removeLoading() {
-        const loadingWrapper = document.getElementById('loading-wrapper');
-        if (loadingWrapper) loadingWrapper.remove();
-    }
-    
-    // Llamada a la API de Gemini
-    async function getGeminiResponse(userMessage) {
-        // Agregar mensaje del usuario al historial
-        conversationHistory.push({
-            role: "user",
-            parts: [{ text: userMessage }]
-        });
-        
-        const requestBody = {
-            contents: conversationHistory
+        // Categorías según lo solicitado
+        const categorias = {
+            ingreso: ['Sueldo', 'Regalos', 'Otros'],
+            gasto: ['Comida', 'Familia', 'Inversión Dios', 'Otro']
         };
-        
-        try {
-            const response = await fetch(`${API_URL}?key=${API_KEY}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(requestBody)
+
+        // Cargar datos del localStorage al iniciar
+        function cargarDatos() {
+            const guardado = localStorage.getItem('finanzas_app');
+            if (guardado) {
+                movimientos = JSON.parse(guardado);
+            } else {
+                // Datos de ejemplo para mostrar funcionalidad
+                const hoy = new Date().toISOString().split('T')[0];
+                movimientos = [
+                    { id: Date.now(), tipo: 'ingreso', monto: 1500, descripcion: 'Sueldo marzo', categoria: 'Sueldo', fecha: hoy },
+                    { id: Date.now()+1, tipo: 'gasto', monto: 250, descripcion: 'Supermercado', categoria: 'Comida', fecha: hoy },
+                    { id: Date.now()+2, tipo: 'gasto', monto: 100, descripcion: 'Diezmo', categoria: 'Inversión Dios', fecha: hoy }
+                ];
+            }
+            actualizarSelectCategorias();
+            actualizarUI();
+        }
+
+        function guardarDatos() {
+            localStorage.setItem('finanzas_app', JSON.stringify(movimientos));
+        }
+
+        function actualizarSelectCategorias() {
+            const tipo = document.getElementById('tipo').value;
+            const selectCat = document.getElementById('categoria');
+            const filtroCat = document.getElementById('filtroCategoria');
+            
+            let opciones = tipo === 'ingreso' ? categorias.ingreso : categorias.gasto;
+            selectCat.innerHTML = '';
+            filtroCat.innerHTML = '<option value="">Todas</option>';
+            
+            opciones.forEach(cat => {
+                selectCat.innerHTML += `<option value="${cat}">${cat}</option>`;
+                filtroCat.innerHTML += `<option value="${cat}">${cat}</option>`;
+            });
+        }
+
+        // Funciones de fecha
+        function esMismaFecha(fecha1, fecha2) {
+            return fecha1 === fecha2;
+        }
+
+        function obtenerSemana(fechaStr) {
+            const fecha = new Date(fechaStr);
+            const inicioAnio = new Date(fecha.getFullYear(), 0, 1);
+            const dias = Math.floor((fecha - inicioAnio) / (24 * 60 * 60 * 1000));
+            return Math.ceil((dias + inicioAnio.getDay() + 1) / 7);
+        }
+
+        function mismaSemana(fecha1Str, fecha2Str) {
+            const f1 = new Date(fecha1Str);
+            const f2 = new Date(fecha2Str);
+            return f1.getFullYear() === f2.getFullYear() && obtenerSemana(fecha1Str) === obtenerSemana(fecha2Str);
+        }
+
+        function mismoMes(fecha1Str, fecha2Str) {
+            const f1 = new Date(fecha1Str);
+            const f2 = new Date(fecha2Str);
+            return f1.getFullYear() === f2.getFullYear() && f1.getMonth() === f2.getMonth();
+        }
+
+        function calcularEstadisticas(filtro = 'hoy', fechaReferencia = null) {
+            const hoy = new Date().toISOString().split('T')[0];
+            let ingresos = 0, gastos = 0;
+            
+            movimientos.forEach(m => {
+                let incluir = false;
+                if (filtro === 'hoy') {
+                    incluir = esMismaFecha(m.fecha, hoy);
+                } else if (filtro === 'semana') {
+                    incluir = mismaSemana(m.fecha, hoy);
+                } else if (filtro === 'mes') {
+                    incluir = mismoMes(m.fecha, hoy);
+                } else if (filtro === 'personalizado' && fechaReferencia) {
+                    incluir = esMismaFecha(m.fecha, fechaReferencia);
+                }
+                
+                if (incluir) {
+                    if (m.tipo === 'ingreso') ingresos += m.monto;
+                    else gastos += m.monto;
+                }
             });
             
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error?.message || `Error HTTP ${response.status}`);
+            return { ingresos, gastos, balance: ingresos - gastos };
+        }
+
+        function actualizarUI() {
+            // Balance total
+            const totalIngresos = movimientos.filter(m => m.tipo === 'ingreso').reduce((sum, m) => sum + m.monto, 0);
+            const totalGastos = movimientos.filter(m => m.tipo === 'gasto').reduce((sum, m) => sum + m.monto, 0);
+            document.getElementById('balanceTotal').innerText = `${(totalIngresos - totalGastos).toFixed(2)} Bs`;
+            
+            // Dashboard cards
+            const hoy = calcularEstadisticas('hoy');
+            const semana = calcularEstadisticas('semana');
+            const mes = calcularEstadisticas('mes');
+            
+            document.getElementById('hoyIngreso').innerHTML = `${hoy.ingresos.toFixed(2)} Bs`;
+            document.getElementById('hoyGasto').innerHTML = `${hoy.gastos.toFixed(2)} Bs`;
+            document.getElementById('hoyBalance').innerHTML = `${hoy.balance.toFixed(2)} Bs`;
+            
+            document.getElementById('semanaIngreso').innerHTML = `${semana.ingresos.toFixed(2)} Bs`;
+            document.getElementById('semanaGasto').innerHTML = `${semana.gastos.toFixed(2)} Bs`;
+            document.getElementById('semanaBalance').innerHTML = `${semana.balance.toFixed(2)} Bs`;
+            
+            document.getElementById('mesIngreso').innerHTML = `${mes.ingresos.toFixed(2)} Bs`;
+            document.getElementById('mesGasto').innerHTML = `${mes.gastos.toFixed(2)} Bs`;
+            document.getElementById('mesBalance').innerHTML = `${mes.balance.toFixed(2)} Bs`;
+            
+            // Últimos 10 movimientos
+            const ultimos = [...movimientos].reverse().slice(0, 10);
+            mostrarListaMovimientos(ultimos, 'ultimosMovimientos');
+            
+            // Todos los movimientos (si está visible)
+            if (document.getElementById('movimientosTab').style.display !== 'none') {
+                aplicarFiltros();
             }
             
-            const data = await response.json();
-            // Extraer respuesta del modelo
-            const botReply = data.candidates[0].content.parts[0].text;
+            // Reportes
+            if (document.getElementById('reportesTab').style.display !== 'none') {
+                actualizarReportes();
+            }
+        }
+        
+        function mostrarListaMovimientos(lista, elementoId) {
+            const contenedor = document.getElementById(elementoId);
+            if (lista.length === 0) {
+                contenedor.innerHTML = '<div class="empty-state">📭 No hay movimientos registrados</div>';
+                return;
+            }
             
-            // Guardar respuesta en el historial
-            conversationHistory.push({
-                role: "model",
-                parts: [{ text: botReply }]
+            contenedor.innerHTML = lista.map(m => `
+                <div class="movimiento-item">
+                    <div class="movimiento-info">
+                        <div class="movimiento-desc">${m.descripcion}</div>
+                        <div class="movimiento-cat">📌 ${m.categoria}</div>
+                        <div class="movimiento-fecha">📅 ${m.fecha}</div>
+                    </div>
+                    <div class="movimiento-monto ${m.tipo === 'ingreso' ? 'ingreso' : 'gasto'}">
+                        ${m.tipo === 'ingreso' ? '+' : '-'} ${m.monto.toFixed(2)} Bs
+                    </div>
+                    <button class="delete-btn" onclick="eliminarMovimiento(${m.id})">🗑️</button>
+                </div>
+            `).join('');
+        }
+        
+        function eliminarMovimiento(id) {
+            if (confirm('¿Eliminar este movimiento?')) {
+                movimientos = movimientos.filter(m => m.id !== id);
+                guardarDatos();
+                actualizarUI();
+            }
+        }
+        
+        function aplicarFiltros() {
+            let filtrados = [...movimientos];
+            const inicio = document.getElementById('filtroFechaInicio').value;
+            const fin = document.getElementById('filtroFechaFin').value;
+            const tipo = document.getElementById('filtroTipo').value;
+            const categoria = document.getElementById('filtroCategoria').value;
+            
+            if (inicio) filtrados = filtrados.filter(m => m.fecha >= inicio);
+            if (fin) filtrados = filtrados.filter(m => m.fecha <= fin);
+            if (tipo) filtrados = filtrados.filter(m => m.tipo === tipo);
+            if (categoria) filtrados = filtrados.filter(m => m.categoria === categoria);
+            
+            filtrados.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+            mostrarListaMovimientos(filtrados, 'todosMovimientos');
+        }
+        
+        function limpiarFiltros() {
+            document.getElementById('filtroFechaInicio').value = '';
+            document.getElementById('filtroFechaFin').value = '';
+            document.getElementById('filtroTipo').value = '';
+            document.getElementById('filtroCategoria').value = '';
+            aplicarFiltros();
+        }
+        
+        function actualizarReportes() {
+            const totalIngresos = movimientos.filter(m => m.tipo === 'ingreso').reduce((sum, m) => sum + m.monto, 0);
+            const totalGastos = movimientos.filter(m => m.tipo === 'gasto').reduce((sum, m) => sum + m.monto, 0);
+            
+            document.getElementById('reporteIngresos').innerHTML = `${totalIngresos.toFixed(2)} Bs`;
+            document.getElementById('reporteGastos').innerHTML = `${totalGastos.toFixed(2)} Bs`;
+            document.getElementById('reporteBalance').innerHTML = `${(totalIngresos - totalGastos).toFixed(2)} Bs`;
+            
+            // Gráfico semanal (últimas 4 semanas)
+            const hoy = new Date();
+            const semanas = [];
+            for (let i = 3; i >= 0; i--) {
+                const fechaTemp = new Date(hoy);
+                fechaTemp.setDate(hoy.getDate() - (i * 7));
+                semanas.push(fechaTemp.toISOString().split('T')[0]);
+            }
+            
+            const datosSemanas = semanas.map(semanaInicio => {
+                let ingresos = 0, gastos = 0;
+                movimientos.forEach(m => {
+                    if (mismaSemana(m.fecha, semanaInicio)) {
+                        if (m.tipo === 'ingreso') ingresos += m.monto;
+                        else gastos += m.monto;
+                    }
+                });
+                return { ingresos, gastos, balance: ingresos - gastos };
             });
             
-            return botReply;
-        } catch (error) {
-            console.error("Error llamando a Gemini:", error);
-            return ` Error: ${error.message}. Verifica tu API Key o conexión.`;
+            const maxValor = Math.max(...datosSemanas.map(d => Math.max(d.ingresos, d.gastos)), 1);
+            const grafico = document.getElementById('graficoBarras');
+            grafico.innerHTML = datosSemanas.map((d, i) => `
+                <div class="bar-item">
+                    <div class="bar" style="height: ${(d.balance / maxValor) * 150}px; background: linear-gradient(to top, #10b981, #667eea);"></div>
+                    <div>Sem ${i+1}</div>
+                    <small>${d.balance.toFixed(0)}</small>
+                </div>
+            `).join('');
+            
+            // Gráfico mensual (últimos 6 meses)
+            const meses = [];
+            for (let i = 5; i >= 0; i--) {
+                const fechaTemp = new Date(hoy.getFullYear(), hoy.getMonth() - i, 1);
+                meses.push(fechaTemp);
+            }
+            
+            const datosMeses = meses.map(mes => {
+                let ingresos = 0, gastos = 0;
+                movimientos.forEach(m => {
+                    const fechaMov = new Date(m.fecha);
+                    if (fechaMov.getFullYear() === mes.getFullYear() && fechaMov.getMonth() === mes.getMonth()) {
+                        if (m.tipo === 'ingreso') ingresos += m.monto;
+                        else gastos += m.monto;
+                    }
+                });
+                return { ingresos, gastos, balance: ingresos - gastos };
+            });
+            
+            const maxMensual = Math.max(...datosMeses.map(d => Math.max(d.ingresos, d.gastos)), 1);
+            const graficoMensual = document.getElementById('graficoMensual');
+            graficoMensual.innerHTML = datosMeses.map((d, i) => `
+                <div class="bar-item">
+                    <div class="bar" style="height: ${(d.balance / maxMensual) * 150}px; background: linear-gradient(to top, #f59e0b, #ef4444);"></div>
+                    <div>${meses[i].toLocaleString('es', { month: 'short' })}</div>
+                    <small>${d.balance.toFixed(0)}</small>
+                </div>
+            `).join('');
         }
-    }
-    
-    // Evento al enviar mensaje
-    async function sendMessage() {
-        const messageText = userInput.value.trim();
-        if (messageText === "") return;
         
-        // Mostrar mensaje del usuario
-        displayMessage('user', messageText);
-        userInput.value = '';
-        userInput.disabled = true;
-        sendBtn.disabled = true;
+        function showTab(tab) {
+            document.getElementById('dashboardTab').style.display = tab === 'dashboard' ? 'block' : 'none';
+            document.getElementById('movimientosTab').style.display = tab === 'movimientos' ? 'block' : 'none';
+            document.getElementById('reportesTab').style.display = tab === 'reportes' ? 'block' : 'none';
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (tab === 'movimientos') aplicarFiltros();
+            if (tab === 'reportes') actualizarReportes();
+        }
         
-        // Mostrar "escribiendo..."
-        showLoading();
+        // Evento para agregar movimiento
+        document.getElementById('movimientoForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const tipo = document.getElementById('tipo').value;
+            const monto = parseFloat(document.getElementById('monto').value);
+            const descripcion = document.getElementById('descripcion').value;
+            const categoria = document.getElementById('categoria').value;
+            const fecha = document.getElementById('fecha').value;
+            
+            if (!monto || monto <= 0) {
+                alert('Por favor ingresa un monto válido');
+                return;
+            }
+            
+            if (!fecha) {
+                alert('Por favor selecciona una fecha');
+                return;
+            }
+            
+            const nuevoMovimiento = {
+                id: Date.now(),
+                tipo,
+                monto,
+                descripcion,
+                categoria,
+                fecha
+            };
+            
+            movimientos.push(nuevoMovimiento);
+            guardarDatos();
+            actualizarUI();
+            
+            // Limpiar formulario
+            document.getElementById('movimientoForm').reset();
+            document.getElementById('monto').value = '';
+            document.getElementById('descripcion').value = '';
+            document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
+            
+            alert('✅ Movimiento guardado correctamente');
+        });
         
-        // Obtener respuesta de Gemini
-        const botResponse = await getGeminiResponse(messageText);
+        // Actualizar categorías cuando cambia el tipo
+        document.getElementById('tipo').addEventListener('change', actualizarSelectCategorias);
         
-        // Remover indicador y mostrar respuesta real
-        removeLoading();
-        displayMessage('bot', botResponse);
+        // Inicializar fecha de hoy en el input
+        document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
         
-        userInput.disabled = false;
-        sendBtn.disabled = false;
-        userInput.focus();
-    }
-    
-    // Configurar eventos
-    sendBtn.addEventListener('click', sendMessage);
-    userInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') sendMessage();
-    });
-    
-    // Validación de API Key al cargar la página
-    if (API_KEY === "TU_CLAVE_API") {
-        displayMessage('bot', " **Atención**: Debes reemplazar 'TU_CLAVE_API' en el código con tu clave real de Gemini. Obtén una gratis en [Google AI Studio](https://aistudio.google.com) y luego recarga esta página.");
-    } else {
-        displayMessage('bot', "¡Hola! Soy Gemini. Escribe algo para empezar a chatear ");
-    }
-</script>
+        // Iniciar app
+        cargarDatos();
+    </script>
 </body>
 </html>
